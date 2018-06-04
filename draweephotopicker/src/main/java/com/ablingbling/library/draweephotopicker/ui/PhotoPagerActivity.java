@@ -12,7 +12,6 @@ import android.widget.TextView;
 
 import com.ablingbling.library.draweephotopicker.PhotoPreview;
 import com.ablingbling.library.draweephotopicker.R;
-import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
@@ -120,7 +119,6 @@ public class PhotoPagerActivity extends AppCompatActivity {
     private void initView() {
         viewPager = findViewById(R.id.viewPager);
         viewPager.setAdapter(mPagerAdapter);
-        viewPager.setOffscreenPageLimit(3);
         viewPager.setCurrentItem(mCurrentIndex);
         viewPager.addOnPageChangeListener(mOnPageChangeListener);
     }
