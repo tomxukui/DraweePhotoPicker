@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.ImageView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +28,7 @@ import com.facebook.imagepipeline.request.ImageRequestBuilder;
 /**
  * Created by donglua on 15/5/31.
  */
-public class PhotoGridAdapter extends SelectableAdapter<PhotoGridAdapter.PhotoViewHolder> {
+public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.ViewHolder> {
 
     public final static int ITEM_TYPE_CAMERA = 100;
     public final static int ITEM_TYPE_PHOTO = 101;
@@ -44,12 +43,12 @@ public class PhotoGridAdapter extends SelectableAdapter<PhotoGridAdapter.PhotoVi
     private OnPhotoClickListener onPhotoClickListener = null;
     private View.OnClickListener onCameraClickListener = null;
 
-    public PhotoGridAdapter(Context context, List<PhotoDirectory> photoDirectories) {
+    public PhotoPickerAdapter(Context context, List<PhotoDirectory> photoDirectories) {
         this.photoDirectories = photoDirectories;
         setColumnNumber(context, mColumnNumber);
     }
 
-    public PhotoGridAdapter(Context context, List<PhotoDirectory> photoDirectories, ArrayList<String> orginalPhotos, int colNum) {
+    public PhotoPickerAdapter(Context context, List<PhotoDirectory> photoDirectories, ArrayList<String> orginalPhotos, int colNum) {
         this(context, photoDirectories);
         setColumnNumber(context, colNum);
         selectedPhotos = new ArrayList<>();
@@ -73,26 +72,29 @@ public class PhotoGridAdapter extends SelectableAdapter<PhotoGridAdapter.PhotoVi
     }
 
     @Override
-    public PhotoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        final View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.picker_item_grid_photo, parent, false);
-        final PhotoViewHolder holder = new PhotoViewHolder(itemView);
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.picker_item_photo_picker, parent, false);
+        ViewHolder vh = new ViewHolder(view);
+
         if (viewType == ITEM_TYPE_CAMERA) {
-            holder.vSelected.setVisibility(View.GONE);
-            holder.ivPhoto.setScaleType(ImageView.ScaleType.CENTER);
-            holder.ivPhoto.setOnClickListener(new View.OnClickListener() {
+            vh.iv_selector.setVisibility(View.GONE);
+            vh.iv_photo.setOnClickListener(new View.OnClickListener() {
+
                 @Override
                 public void onClick(View view) {
                     if (onCameraClickListener != null) {
                         onCameraClickListener.onClick(view);
                     }
                 }
+
             });
         }
-        return holder;
+
+        return vh;
     }
 
     @Override
-    public void onBindViewHolder(final PhotoViewHolder holder, int position) {
+    public void onBindViewHolder(final ViewHolder holder, int position) {
         if (getItemViewType(position) == ITEM_TYPE_PHOTO) {
             List<Photo> photos = getCurrentPhotos();
             final Photo photo = photos.get(showCamera() ? (position - 1) : position);
@@ -103,17 +105,17 @@ public class PhotoGridAdapter extends SelectableAdapter<PhotoGridAdapter.PhotoVi
                     .build();
 
             PipelineDraweeController controller = (PipelineDraweeController) Fresco.newDraweeControllerBuilder()
-                    .setOldController(holder.ivPhoto.getController())
+                    .setOldController(holder.iv_photo.getController())
                     .setImageRequest(request)
                     .build();
 
-            holder.ivPhoto.setController(controller);
+            holder.iv_photo.setController(controller);
 
             boolean isChecked = isSelected(photo);
 
-            holder.vSelected.setSelected(isChecked);
-            holder.ivPhoto.setSelected(isChecked);
-            holder.ivPhoto.setOnClickListener(new View.OnClickListener() {
+            holder.iv_selector.setSelected(isChecked);
+            holder.iv_photo.setSelected(isChecked);
+            holder.iv_photo.setOnClickListener(new View.OnClickListener() {
 
                 @Override
                 public void onClick(View view) {
@@ -122,13 +124,13 @@ public class PhotoGridAdapter extends SelectableAdapter<PhotoGridAdapter.PhotoVi
                         if (mPreviewEnable) {
                             onPhotoClickListener.onClick(view, pos, showCamera());
                         } else {
-                            holder.vSelected.performClick();
+                            holder.iv_selector.performClick();
                         }
                     }
                 }
 
             });
-            holder.vSelected.setOnClickListener(new View.OnClickListener() {
+            holder.iv_selector.setOnClickListener(new View.OnClickListener() {
 
                 @Override
                 public void onClick(View view) {
@@ -148,7 +150,7 @@ public class PhotoGridAdapter extends SelectableAdapter<PhotoGridAdapter.PhotoVi
             });
 
         } else {
-            holder.ivPhoto.setImageResource(R.mipmap.picker_ic_camera);
+            holder.iv_photo.setImageResource(R.mipmap.picker_ic_camera);
         }
     }
 
@@ -161,15 +163,15 @@ public class PhotoGridAdapter extends SelectableAdapter<PhotoGridAdapter.PhotoVi
         return photosCount;
     }
 
-    public static class PhotoViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder {
 
-        private SimpleDraweeView ivPhoto;
-        private View vSelected;
+        private SimpleDraweeView iv_photo;
+        private View iv_selector;
 
-        public PhotoViewHolder(View itemView) {
-            super(itemView);
-            ivPhoto = itemView.findViewById(R.id.iv_photo);
-            vSelected = itemView.findViewById(R.id.v_selected);
+        public ViewHolder(View view) {
+            super(view);
+            iv_photo = itemView.findViewById(R.id.iv_photo);
+            iv_selector = itemView.findViewById(R.id.iv_selector);
         }
 
     }

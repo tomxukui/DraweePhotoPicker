@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ablingbling.library.draweephotopicker.adapter.PhotoGridAdapter;
+import com.ablingbling.library.draweephotopicker.adapter.PhotoPickerAdapter;
 import com.ablingbling.library.draweephotopicker.adapter.PopupDirectoryListAdapter;
 import com.ablingbling.library.draweephotopicker.entity.Photo;
 import com.ablingbling.library.draweephotopicker.entity.PhotoDirectory;
@@ -46,7 +46,7 @@ public class PhotoPickerActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private TextView tv_dir;
 
-    private PhotoGridAdapter mPhotoGridAdapter;
+    private PhotoPickerAdapter mPhotoPickerAdapter;
     private PopupDirectoryListAdapter mDirPopupListAdapter;
     private ListPopupWindow mListPopupWindow;
     private RequestManager mGlideRequestManager;
@@ -84,7 +84,7 @@ public class PhotoPickerActivity extends AppCompatActivity {
         }
 
         if (item.getItemId() == R.id.action_done) {
-            ArrayList<String> selectedPhotos = mPhotoGridAdapter.getSelectedPhotoPaths();
+            ArrayList<String> selectedPhotos = mPhotoPickerAdapter.getSelectedPhotoPaths();
             if (selectedPhotos == null) {
                 selectedPhotos = new ArrayList<>();
             }
@@ -112,7 +112,7 @@ public class PhotoPickerActivity extends AppCompatActivity {
                         PhotoDirectory directory = mDirectories.get(MediaStoreHelper.INDEX_ALL_PHOTOS);
                         directory.getPhotos().add(MediaStoreHelper.INDEX_ALL_PHOTOS, new Photo(path.hashCode(), path));
                         directory.setCoverPath(path);
-                        mPhotoGridAdapter.notifyDataSetChanged();
+                        mPhotoPickerAdapter.notifyDataSetChanged();
                     }
                 }
             }
@@ -150,18 +150,18 @@ public class PhotoPickerActivity extends AppCompatActivity {
             mOriginalPhotos = new ArrayList<>();
         }
 
-        mPhotoGridAdapter = new PhotoGridAdapter(this, mDirectories, mOriginalPhotos, mColumnNumber);
-        mPhotoGridAdapter.setShowCamera(mShowCamera);
-        mPhotoGridAdapter.setPreviewEnable(mPreviewEnabled);
-        mPhotoGridAdapter.setOnItemCheckListener(new OnItemCheckListener() {
+        mPhotoPickerAdapter = new PhotoPickerAdapter(this, mDirectories, mOriginalPhotos, mColumnNumber);
+        mPhotoPickerAdapter.setShowCamera(mShowCamera);
+        mPhotoPickerAdapter.setPreviewEnable(mPreviewEnabled);
+        mPhotoPickerAdapter.setOnItemCheckListener(new OnItemCheckListener() {
 
             @Override
             public boolean onItemCheck(int position, Photo photo, int selectedItemCount) {
                 if (mMaxCount <= 1) {
-                    List<String> photos = mPhotoGridAdapter.getSelectedPhotos();
+                    List<String> photos = mPhotoPickerAdapter.getSelectedPhotos();
                     if (!photos.contains(photo.getPath())) {
                         photos.clear();
-                        mPhotoGridAdapter.notifyDataSetChanged();
+                        mPhotoPickerAdapter.notifyDataSetChanged();
                     }
                     return true;
                 }
@@ -176,12 +176,12 @@ public class PhotoPickerActivity extends AppCompatActivity {
             }
 
         });
-        mPhotoGridAdapter.setOnPhotoClickListener(new OnPhotoClickListener() {
+        mPhotoPickerAdapter.setOnPhotoClickListener(new OnPhotoClickListener() {
 
             @Override
             public void onClick(View v, int position, boolean showCamera) {
                 int index = showCamera ? position - 1 : position;
-                List<String> photoPaths = mPhotoGridAdapter.getCurrentPhotoPaths();
+                List<String> photoPaths = mPhotoPickerAdapter.getCurrentPhotoPaths();
                 String photoPath = photoPaths.get(index);
 
                 Intent intent = new Intent(PhotoPickerActivity.this, PhotoZoomActivity.class);
@@ -190,7 +190,7 @@ public class PhotoPickerActivity extends AppCompatActivity {
             }
 
         });
-        mPhotoGridAdapter.setOnCameraClickListener(new View.OnClickListener() {
+        mPhotoPickerAdapter.setOnCameraClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
@@ -211,7 +211,7 @@ public class PhotoPickerActivity extends AppCompatActivity {
             public void onResultCallback(List<PhotoDirectory> dirs) {
                 mDirectories.clear();
                 mDirectories.addAll(dirs);
-                mPhotoGridAdapter.notifyDataSetChanged();
+                mPhotoPickerAdapter.notifyDataSetChanged();
                 mDirPopupListAdapter.notifyDataSetChanged();
                 adjustHeight();
             }
@@ -253,7 +253,7 @@ public class PhotoPickerActivity extends AppCompatActivity {
         StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(mColumnNumber, OrientationHelper.VERTICAL);
         layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(mPhotoGridAdapter);
+        recyclerView.setAdapter(mPhotoPickerAdapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
@@ -289,8 +289,8 @@ public class PhotoPickerActivity extends AppCompatActivity {
                 mListPopupWindow.dismiss();
                 PhotoDirectory directory = mDirectories.get(position);
                 tv_dir.setText(directory.getName());
-                mPhotoGridAdapter.setCurrentDirectoryIndex(position);
-                mPhotoGridAdapter.notifyDataSetChanged();
+                mPhotoPickerAdapter.setCurrentDirectoryIndex(position);
+                mPhotoPickerAdapter.notifyDataSetChanged();
             }
 
         });
