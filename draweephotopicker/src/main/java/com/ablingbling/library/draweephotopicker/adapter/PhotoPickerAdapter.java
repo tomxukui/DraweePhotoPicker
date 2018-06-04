@@ -121,8 +121,10 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
                 public void onClick(View view) {
                     if (onPhotoClickListener != null) {
                         int pos = holder.getAdapterPosition();
+
                         if (mPreviewEnable) {
                             onPhotoClickListener.onClick(view, pos, showCamera());
+
                         } else {
                             holder.iv_selector.performClick();
                         }
@@ -141,6 +143,7 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
                         isEnable = onItemCheckListener.onItemCheck(pos, photo,
                                 getSelectedPhotos().size() + (isSelected(photo) ? -1 : 1));
                     }
+
                     if (isEnable) {
                         toggleSelection(photo);
                         notifyItemChanged(pos);
@@ -157,10 +160,7 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
     @Override
     public int getItemCount() {
         int photosCount = (photoDirectories.size() == 0 ? 0 : getCurrentPhotos().size());
-        if (showCamera()) {
-            return photosCount + 1;
-        }
-        return photosCount;
+        return showCamera() ? (photosCount + 1) : photosCount;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
