@@ -99,17 +99,7 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
             List<Photo> photos = getCurrentPhotos();
             final Photo photo = photos.get(showCamera() ? (position - 1) : position);
             Uri uri = Uri.parse("file://" + photo.getPath());
-
-            ImageRequest request = ImageRequestBuilder.newBuilderWithSource(uri)
-                    .setResizeOptions(new ResizeOptions(mImageSize, mImageSize))
-                    .build();
-
-            PipelineDraweeController controller = (PipelineDraweeController) Fresco.newDraweeControllerBuilder()
-                    .setOldController(holder.iv_photo.getController())
-                    .setImageRequest(request)
-                    .build();
-
-            holder.iv_photo.setController(controller);
+            setDraweeView(uri, holder.iv_photo);
 
             boolean isChecked = isSelected(photo);
 
@@ -153,7 +143,8 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
             });
 
         } else {
-            holder.iv_photo.setImageResource(R.mipmap.picker_ic_camera);
+            Uri uri = Uri.parse("res://com.ablingbling.library.draweephotopicker/" + R.mipmap.picker_ic_camera);
+            holder.iv_photo.setImageURI(uri);
         }
     }
 
@@ -161,6 +152,21 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
     public int getItemCount() {
         int photosCount = (photoDirectories.size() == 0 ? 0 : getCurrentPhotos().size());
         return showCamera() ? (photosCount + 1) : photosCount;
+    }
+
+    private void setDraweeView(Uri uri, SimpleDraweeView iv) {
+        ImageRequest request = ImageRequestBuilder
+                .newBuilderWithSource(uri)
+                .setResizeOptions(new ResizeOptions(mImageSize, mImageSize))
+                .build();
+
+        PipelineDraweeController controller = (PipelineDraweeController) Fresco
+                .newDraweeControllerBuilder()
+                .setOldController(iv.getController())
+                .setImageRequest(request)
+                .build();
+
+        iv.setController(controller);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
