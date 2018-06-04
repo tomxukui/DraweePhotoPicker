@@ -17,9 +17,6 @@ import java.util.ArrayList;
 
 import com.ablingbling.library.draweephotopicker.adapter.PhotoPagerAdapter;
 
-/**
- * Created by donglua on 15/6/24.
- */
 public class PhotoPagerActivity extends AppCompatActivity {
 
     private TextView tv_title;
