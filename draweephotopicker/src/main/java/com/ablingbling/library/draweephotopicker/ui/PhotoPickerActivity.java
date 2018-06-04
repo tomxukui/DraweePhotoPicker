@@ -150,7 +150,7 @@ public class PhotoPickerActivity extends AppCompatActivity {
             mOriginalPhotos = new ArrayList<>();
         }
 
-        mPhotoGridAdapter = new PhotoGridAdapter(this, mGlideRequestManager, mDirectories, mOriginalPhotos, mColumnNumber);
+        mPhotoGridAdapter = new PhotoGridAdapter(this, mDirectories, mOriginalPhotos, mColumnNumber);
         mPhotoGridAdapter.setShowCamera(mShowCamera);
         mPhotoGridAdapter.setPreviewEnable(mPreviewEnabled);
         mPhotoGridAdapter.setOnItemCheckListener(new OnItemCheckListener() {

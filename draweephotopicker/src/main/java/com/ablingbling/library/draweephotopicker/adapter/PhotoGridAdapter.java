@@ -1,6 +1,7 @@
 package com.ablingbling.library.draweephotopicker.adapter;
 
 import android.content.Context;
+import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -9,10 +10,6 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
-import com.bumptech.glide.RequestManager;
-import com.bumptech.glide.request.RequestOptions;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,8 +18,13 @@ import com.ablingbling.library.draweephotopicker.entity.Photo;
 import com.ablingbling.library.draweephotopicker.entity.PhotoDirectory;
 import com.ablingbling.library.draweephotopicker.event.OnItemCheckListener;
 import com.ablingbling.library.draweephotopicker.event.OnPhotoClickListener;
-import com.ablingbling.library.draweephotopicker.utils.AndroidLifecycleUtils;
 import com.ablingbling.library.draweephotopicker.utils.MediaStoreHelper;
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.backends.pipeline.PipelineDraweeController;
+import com.facebook.drawee.view.SimpleDraweeView;
+import com.facebook.imagepipeline.common.ResizeOptions;
+import com.facebook.imagepipeline.request.ImageRequest;
+import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
 /**
  * Created by donglua on 15/5/31.
@@ -33,8 +35,6 @@ public class PhotoGridAdapter extends SelectableAdapter<PhotoGridAdapter.PhotoVi
     public final static int ITEM_TYPE_PHOTO = 101;
     private final static int COL_NUMBER_DEFAULT = 3;
 
-    private RequestManager mGlide;
-
     private boolean mHasCamera = true;
     private boolean mPreviewEnable = true;
     private int mImageSize;
@@ -44,17 +44,18 @@ public class PhotoGridAdapter extends SelectableAdapter<PhotoGridAdapter.PhotoVi
     private OnPhotoClickListener onPhotoClickListener = null;
     private View.OnClickListener onCameraClickListener = null;
 
-    public PhotoGridAdapter(Context context, RequestManager requestManager, List<PhotoDirectory> photoDirectories) {
+    public PhotoGridAdapter(Context context, List<PhotoDirectory> photoDirectories) {
         this.photoDirectories = photoDirectories;
-        mGlide = requestManager;
         setColumnNumber(context, mColumnNumber);
     }
 
-    public PhotoGridAdapter(Context context, RequestManager requestManager, List<PhotoDirectory> photoDirectories, ArrayList<String> orginalPhotos, int colNum) {
-        this(context, requestManager, photoDirectories);
+    public PhotoGridAdapter(Context context, List<PhotoDirectory> photoDirectories, ArrayList<String> orginalPhotos, int colNum) {
+        this(context, photoDirectories);
         setColumnNumber(context, colNum);
         selectedPhotos = new ArrayList<>();
-        if (orginalPhotos != null) selectedPhotos.addAll(orginalPhotos);
+        if (orginalPhotos != null) {
+            selectedPhotos.addAll(orginalPhotos);
+        }
     }
 
     private void setColumnNumber(Context context, int columnNumber) {
@@ -94,33 +95,26 @@ public class PhotoGridAdapter extends SelectableAdapter<PhotoGridAdapter.PhotoVi
     public void onBindViewHolder(final PhotoViewHolder holder, int position) {
         if (getItemViewType(position) == ITEM_TYPE_PHOTO) {
             List<Photo> photos = getCurrentPhotos();
-            final Photo photo;
+            final Photo photo = photos.get(showCamera() ? (position - 1) : position);
+            Uri uri = Uri.parse("file://" + photo.getPath());
 
-            if (showCamera()) {
-                photo = photos.get(position - 1);
-            } else {
-                photo = photos.get(position);
-            }
+            ImageRequest request = ImageRequestBuilder.newBuilderWithSource(uri)
+                    .setResizeOptions(new ResizeOptions(mImageSize, mImageSize))
+                    .build();
 
-            if (AndroidLifecycleUtils.canLoadImage(holder.ivPhoto.getContext())) {
-                final RequestOptions options = new RequestOptions()
-                        .centerCrop()
-                        .dontAnimate()
-                        .override(mImageSize, mImageSize)
-                        .error(R.mipmap.picker_ic_broken_img);
+            PipelineDraweeController controller = (PipelineDraweeController) Fresco.newDraweeControllerBuilder()
+                    .setOldController(holder.ivPhoto.getController())
+                    .setImageRequest(request)
+                    .build();
 
-                mGlide.setDefaultRequestOptions(options)
-                        .load(new File(photo.getPath()))
-                        .thumbnail(0.5f)
-                        .into(holder.ivPhoto);
-            }
+            holder.ivPhoto.setController(controller);
 
-            final boolean isChecked = isSelected(photo);
+            boolean isChecked = isSelected(photo);
 
             holder.vSelected.setSelected(isChecked);
             holder.ivPhoto.setSelected(isChecked);
-
             holder.ivPhoto.setOnClickListener(new View.OnClickListener() {
+
                 @Override
                 public void onClick(View view) {
                     if (onPhotoClickListener != null) {
@@ -132,8 +126,10 @@ public class PhotoGridAdapter extends SelectableAdapter<PhotoGridAdapter.PhotoVi
                         }
                     }
                 }
+
             });
             holder.vSelected.setOnClickListener(new View.OnClickListener() {
+
                 @Override
                 public void onClick(View view) {
                     int pos = holder.getAdapterPosition();
@@ -148,6 +144,7 @@ public class PhotoGridAdapter extends SelectableAdapter<PhotoGridAdapter.PhotoVi
                         notifyItemChanged(pos);
                     }
                 }
+
             });
 
         } else {
@@ -165,7 +162,8 @@ public class PhotoGridAdapter extends SelectableAdapter<PhotoGridAdapter.PhotoVi
     }
 
     public static class PhotoViewHolder extends RecyclerView.ViewHolder {
-        private ImageView ivPhoto;
+
+        private SimpleDraweeView ivPhoto;
         private View vSelected;
 
         public PhotoViewHolder(View itemView) {
@@ -173,6 +171,7 @@ public class PhotoGridAdapter extends SelectableAdapter<PhotoGridAdapter.PhotoVi
             ivPhoto = itemView.findViewById(R.id.iv_photo);
             vSelected = itemView.findViewById(R.id.v_selected);
         }
+
     }
 
     public void setOnItemCheckListener(OnItemCheckListener onItemCheckListener) {
@@ -207,12 +206,6 @@ public class PhotoGridAdapter extends SelectableAdapter<PhotoGridAdapter.PhotoVi
 
     public boolean showCamera() {
         return (mHasCamera && currentDirectoryIndex == MediaStoreHelper.INDEX_ALL_PHOTOS);
-    }
-
-    @Override
-    public void onViewRecycled(PhotoViewHolder holder) {
-        mGlide.clear(holder.ivPhoto);
-        super.onViewRecycled(holder);
     }
 
 }
