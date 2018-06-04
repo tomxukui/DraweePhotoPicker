@@ -30,8 +30,8 @@ import com.facebook.imagepipeline.request.ImageRequestBuilder;
  */
 public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.ViewHolder> {
 
-    public final static int ITEM_TYPE_CAMERA = 100;
-    public final static int ITEM_TYPE_PHOTO = 101;
+    private final static int TYPE_CAMERA = 0;
+    private final static int TYPE_PHOTO = 1;
     private final static int COL_NUMBER_DEFAULT = 3;
 
     private boolean mHasCamera = true;
@@ -68,83 +68,91 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
 
     @Override
     public int getItemViewType(int position) {
-        return (showCamera() && position == 0) ? ITEM_TYPE_CAMERA : ITEM_TYPE_PHOTO;
+        return (showCamera() && position == 0) ? TYPE_CAMERA : TYPE_PHOTO;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.picker_item_photo_picker, parent, false);
         ViewHolder vh = new ViewHolder(view);
-
-        if (viewType == ITEM_TYPE_CAMERA) {
-            vh.iv_selector.setVisibility(View.GONE);
-            vh.iv_photo.setOnClickListener(new View.OnClickListener() {
-
-                @Override
-                public void onClick(View view) {
-                    if (onCameraClickListener != null) {
-                        onCameraClickListener.onClick(view);
-                    }
-                }
-
-            });
-        }
-
         return vh;
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder holder, int position) {
-        if (getItemViewType(position) == ITEM_TYPE_PHOTO) {
-            List<Photo> photos = getCurrentPhotos();
-            final Photo photo = photos.get(showCamera() ? (position - 1) : position);
-            Uri uri = Uri.parse("file://" + photo.getPath());
-            setDraweeView(uri, holder.iv_photo);
+    public void onBindViewHolder(final ViewHolder vh, int position) {
+        int type = getItemViewType(position);
 
-            boolean isChecked = isSelected(photo);
+        switch (type) {
 
-            holder.iv_selector.setSelected(isChecked);
-            holder.iv_photo.setSelected(isChecked);
-            holder.iv_photo.setOnClickListener(new View.OnClickListener() {
+            case TYPE_CAMERA: {
+                vh.iv_selector.setVisibility(View.GONE);
 
-                @Override
-                public void onClick(View view) {
-                    if (onPhotoClickListener != null) {
-                        int pos = holder.getAdapterPosition();
+                Uri uri = Uri.parse("res://com.ablingbling.library.draweephotopicker/" + R.mipmap.picker_ic_camera);
+                vh.iv_photo.setImageURI(uri);
+                vh.iv_photo.setOnClickListener(new View.OnClickListener() {
 
-                        if (mPreviewEnable) {
-                            onPhotoClickListener.onClick(view, pos, showCamera());
-
-                        } else {
-                            holder.iv_selector.performClick();
+                    @Override
+                    public void onClick(View view) {
+                        if (onCameraClickListener != null) {
+                            onCameraClickListener.onClick(view);
                         }
                     }
-                }
 
-            });
-            holder.iv_selector.setOnClickListener(new View.OnClickListener() {
+                });
+            }
+            break;
 
-                @Override
-                public void onClick(View view) {
-                    int pos = holder.getAdapterPosition();
-                    boolean isEnable = true;
+            case TYPE_PHOTO: {
+                final Photo photo = getCurrentPhotos().get(showCamera() ? (position - 1) : position);
+                boolean isChecked = isSelected(photo);
 
-                    if (onItemCheckListener != null) {
-                        isEnable = onItemCheckListener.onItemCheck(pos, photo,
-                                getSelectedPhotos().size() + (isSelected(photo) ? -1 : 1));
+                Uri uri = Uri.parse("file://" + photo.getPath());
+                setDraweeView(uri, vh.iv_photo);
+                vh.iv_photo.setSelected(isChecked);
+                vh.iv_photo.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View view) {
+                        if (onPhotoClickListener != null) {
+                            int pos = vh.getAdapterPosition();
+
+                            if (mPreviewEnable) {
+                                onPhotoClickListener.onClick(view, pos, showCamera());
+
+                            } else {
+                                vh.iv_selector.performClick();
+                            }
+                        }
                     }
 
-                    if (isEnable) {
-                        toggleSelection(photo);
-                        notifyItemChanged(pos);
+                });
+
+                vh.iv_selector.setSelected(isChecked);
+                vh.iv_selector.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View view) {
+                        int pos = vh.getAdapterPosition();
+                        boolean isEnable = true;
+
+                        if (onItemCheckListener != null) {
+                            isEnable = onItemCheckListener.onItemCheck(pos, photo,
+                                    getSelectedPhotos().size() + (isSelected(photo) ? -1 : 1));
+                        }
+
+                        if (isEnable) {
+                            toggleSelection(photo);
+                            notifyItemChanged(pos);
+                        }
                     }
-                }
 
-            });
+                });
+            }
+            break;
 
-        } else {
-            Uri uri = Uri.parse("res://com.ablingbling.library.draweephotopicker/" + R.mipmap.picker_ic_camera);
-            holder.iv_photo.setImageURI(uri);
+            default:
+                break;
+
         }
     }
 
