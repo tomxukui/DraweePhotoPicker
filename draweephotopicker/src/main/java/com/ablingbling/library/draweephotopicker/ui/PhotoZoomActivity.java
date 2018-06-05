@@ -1,18 +1,18 @@
 package com.ablingbling.library.draweephotopicker.ui;
 
+import android.graphics.drawable.Animatable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
 import com.ablingbling.library.draweephotopicker.R;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.controller.BaseControllerListener;
+import com.facebook.drawee.interfaces.DraweeController;
+import com.facebook.imagepipeline.image.ImageInfo;
 
-import java.io.File;
-
-import com.ablingbling.library.draweephotopicker.utils.AndroidLifecycleUtils;
-import com.ablingbling.library.draweephotopicker.widget.TouchImageView;
+import me.relex.photodraweeview.PhotoDraweeView;
 
 /**
  * Created by xukui on 2018/5/18.
@@ -21,7 +21,7 @@ public class PhotoZoomActivity extends AppCompatActivity {
 
     public static final String EXTRA_SELECTED_PHOTO = "EXTRA_SELECTED_PHOTO";
 
-    private TouchImageView iv_img;
+    private PhotoDraweeView iv_img;
 
     private String mImgPath;
 
@@ -40,21 +40,24 @@ public class PhotoZoomActivity extends AppCompatActivity {
     private void initView() {
         iv_img = findViewById(R.id.iv_img);
 
-        if (AndroidLifecycleUtils.canLoadImage(this)) {
-            Uri uri = (mImgPath.startsWith("http") ? Uri.parse(mImgPath) : Uri.fromFile(new File(mImgPath)));
+        Uri uri = Uri.parse(mImgPath.startsWith("http") ? mImgPath : ("file://" + mImgPath));
+        DraweeController controller = Fresco
+                .newDraweeControllerBuilder()
+                .setUri(uri)
+                .setOldController(iv_img.getController())
+                .setControllerListener(new BaseControllerListener<ImageInfo>() {
 
-            RequestOptions options = new RequestOptions()
-                    .dontAnimate()
-                    .dontTransform()
-                    .override(800, 800)
-                    .error(R.mipmap.picker_ic_broken_img);
+                    @Override
+                    public void onFinalImageSet(String id, ImageInfo imageInfo, Animatable animatable) {
+                        super.onFinalImageSet(id, imageInfo, animatable);
+                        if (imageInfo != null) {
+                            iv_img.update(imageInfo.getWidth(), imageInfo.getHeight());
+                        }
+                    }
 
-            Glide.with(this)
-                    .setDefaultRequestOptions(options)
-                    .load(uri)
-                    .thumbnail(0.1f)
-                    .into(iv_img);
-        }
+                })
+                .build();
+        iv_img.setController(controller);
     }
 
 }

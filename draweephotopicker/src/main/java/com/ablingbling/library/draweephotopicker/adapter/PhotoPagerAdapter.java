@@ -11,13 +11,15 @@ import java.util.List;
 import com.ablingbling.library.draweephotopicker.R;
 import com.ablingbling.library.salvage.RecyclingPagerAdapter;
 import com.facebook.drawee.backends.pipeline.Fresco;
-import com.facebook.drawee.backends.pipeline.PipelineDraweeControllerBuilder;
 import com.facebook.drawee.controller.BaseControllerListener;
+import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.imagepipeline.image.ImageInfo;
 
 import me.relex.photodraweeview.PhotoDraweeView;
 
 public class PhotoPagerAdapter extends RecyclingPagerAdapter {
+
+    private ViewHolder vh;
 
     private List<String> mList;
 
@@ -32,46 +34,44 @@ public class PhotoPagerAdapter extends RecyclingPagerAdapter {
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
-        final ViewHolder holder;
-
         if (view == null) {
             view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.picker_item_pager_photo, viewGroup, false);
-            holder = new ViewHolder(view);
-            view.setTag(holder);
+            vh = new ViewHolder(view);
+            view.setTag(vh);
 
         } else {
-            holder = (ViewHolder) view.getTag();
+            vh = (ViewHolder) view.getTag();
         }
 
         String path = mList.get(i);
         Uri uri = Uri.parse(path.startsWith("http") ? path : ("file://" + path));
+        DraweeController controller = Fresco.newDraweeControllerBuilder()
+                .setUri(uri)
+                .setOldController(vh.iv_img.getController())
+                .setControllerListener(new BaseControllerListener<ImageInfo>() {
 
-        PipelineDraweeControllerBuilder controller = Fresco.newDraweeControllerBuilder();
-        controller.setUri(uri);
-        controller.setOldController(holder.iv_img.getController());
-        controller.setControllerListener(new BaseControllerListener<ImageInfo>() {
+                    @Override
+                    public void onFinalImageSet(String id, ImageInfo imageInfo, Animatable animatable) {
+                        super.onFinalImageSet(id, imageInfo, animatable);
+                        if (imageInfo != null) {
+                            vh.iv_img.update(imageInfo.getWidth(), imageInfo.getHeight());
+                        }
+                    }
 
-            @Override
-            public void onFinalImageSet(String id, ImageInfo imageInfo, Animatable animatable) {
-                super.onFinalImageSet(id, imageInfo, animatable);
-                if (imageInfo != null) {
-                    holder.iv_img.update(imageInfo.getWidth(), imageInfo.getHeight());
-                }
-            }
-
-        });
-
-        holder.iv_img.setController(controller.build());
+                })
+                .build();
+        vh.iv_img.setController(controller);
         return view;
     }
 
-    static class ViewHolder {
+    class ViewHolder {
 
-        final PhotoDraweeView iv_img;
+        PhotoDraweeView iv_img;
 
         public ViewHolder(View view) {
             iv_img = view.findViewById(R.id.iv_img);
         }
+
     }
 
 }
