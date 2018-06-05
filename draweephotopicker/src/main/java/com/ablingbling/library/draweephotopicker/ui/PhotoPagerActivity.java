@@ -27,7 +27,6 @@ public class PhotoPagerActivity extends AppCompatActivity {
     private PhotoPagerAdapter mPagerAdapter;
 
     private int mCurrentIndex;
-    private ArrayList<String> mPhotoPaths;
     private boolean mShowDelete;
 
     @Override
@@ -55,7 +54,7 @@ public class PhotoPagerActivity extends AppCompatActivity {
     @Override
     public void finish() {
         Intent intent = new Intent();
-        intent.putExtra(PhotoPreview.EXTRA_PHOTO_PATHS, mPhotoPaths);
+        intent.putExtra(PhotoPreview.EXTRA_PHOTO_PATHS, (ArrayList<String>) mPagerAdapter.getData());
         setResult(RESULT_OK, intent);
         super.finish();
     }
@@ -70,18 +69,13 @@ public class PhotoPagerActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.action_delete) {
             final int index = viewPager.getCurrentItem();
 
-            if (mPhotoPaths.size() <= 1) {
-                mPhotoPaths.remove(index);
-                mPagerAdapter.notifyDataSetChanged();
-
+            if (mPagerAdapter.getCount() <= 1) {
+                mPagerAdapter.remove(index);
                 finish();
 
             } else {
                 Snackbar.make(viewPager, "删除了一张图片", Snackbar.LENGTH_SHORT).show();
-
-                mPhotoPaths.remove(index);
-                mPagerAdapter.notifyDataSetChanged();
-
+                mPagerAdapter.remove(index);
                 setTitleView(viewPager.getCurrentItem());
             }
 
@@ -93,13 +87,10 @@ public class PhotoPagerActivity extends AppCompatActivity {
 
     private void initData() {
         mCurrentIndex = getIntent().getIntExtra(PhotoPreview.EXTRA_CURRENT_ITEM, 0);
-        mPhotoPaths = getIntent().getStringArrayListExtra(PhotoPreview.EXTRA_PHOTO_PATHS);
+        ArrayList<String> photoPaths = getIntent().getStringArrayListExtra(PhotoPreview.EXTRA_PHOTO_PATHS);
         mShowDelete = getIntent().getBooleanExtra(PhotoPreview.EXTRA_SHOW_DELETE, true);
-        if (mPhotoPaths == null) {
-            mPhotoPaths = new ArrayList<>();
-        }
 
-        mPagerAdapter = new PhotoPagerAdapter(mPhotoPaths);
+        mPagerAdapter = new PhotoPagerAdapter(photoPaths);
     }
 
     private void initActionBar() {
@@ -123,7 +114,7 @@ public class PhotoPagerActivity extends AppCompatActivity {
     }
 
     private void setTitleView(int pos) {
-        tv_title.setText(String.format("%d/%d", pos + 1, mPhotoPaths.size()));
+        tv_title.setText(String.format("%d/%d", pos + 1, mPagerAdapter.getCount()));
     }
 
     private final ViewPager.OnPageChangeListener mOnPageChangeListener = new ViewPager.OnPageChangeListener() {

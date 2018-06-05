@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.ablingbling.library.draweephotopicker.R;
@@ -24,7 +25,11 @@ public class PhotoPagerAdapter extends RecyclingPagerAdapter {
     private List<String> mList;
 
     public PhotoPagerAdapter(List<String> list) {
-        mList = list;
+        mList = new ArrayList<>();
+
+        if (list != null) {
+            mList.addAll(list);
+        }
     }
 
     @Override
@@ -62,6 +67,44 @@ public class PhotoPagerAdapter extends RecyclingPagerAdapter {
                 .build();
         vh.iv_img.setController(controller);
         return view;
+    }
+
+    public List<String> getData() {
+        return mList;
+    }
+
+    public void addNewData(List<String> list) {
+        mList.clear();
+        mList.addAll(list);
+        notifyDataSetChanged();
+    }
+
+    public void addNewData(String item) {
+        mList.clear();
+        mList.add(item);
+        notifyDataSetChanged();
+    }
+
+    public void addData(List<String> list) {
+        mList.addAll(list);
+        notifyDataSetChanged();
+    }
+
+    public void addData(String item) {
+        mList.add(item);
+        notifyDataSetChanged();
+    }
+
+    public void remove(int position) {
+        if (position >= 0 && position < mList.size()) {
+            mList.remove(position);
+        }
+        notifyDataSetChanged();
+    }
+
+    public void clear() {
+        mList.clear();
+        notifyDataSetChanged();
     }
 
     class ViewHolder {
