@@ -13,7 +13,7 @@
         android:layout_width="@dimen/picker_item_directory_img_width"
         android:layout_height="@dimen/picker_item_directory_img_height"
         android:background="@android:color/black"
-        app:failureImage="@mipmap/picker_ic_empty_dark"
+        app:failureImage="@mipmap/picker_ic_empty"
         app:failureImageScaleType="center"
         app:roundedCornerRadius="3dp" />
 

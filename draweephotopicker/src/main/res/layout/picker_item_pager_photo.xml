@@ -3,5 +3,5 @@
     android:id="@+id/iv_img"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:failureImage="@mipmap/picker_ic_empty_light"
+    app:failureImage="@mipmap/picker_ic_empty"
     app:failureImageScaleType="center" />
