@@ -3,7 +3,7 @@
 
     <item
         android:id="@+id/action_delete"
-        android:icon="@drawable/picker_btn_delete"
+        android:icon="@mipmap/picker_ic_delete"
         android:orderInCategory="100"
         android:title="删除"
         app:showAsAction="always" />
