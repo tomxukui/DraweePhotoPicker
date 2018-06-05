@@ -34,7 +34,7 @@ public class PhotoPagerAdapter extends RecyclingPagerAdapter {
 
     @Override
     public int getCount() {
-        return mList == null ? 0 : mList.size();
+        return mList.size();
     }
 
     @Override

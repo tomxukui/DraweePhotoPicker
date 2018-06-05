@@ -39,12 +39,6 @@ public class PhotoPagerActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        viewPager.removeOnPageChangeListener(mOnPageChangeListener);
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.picker_menu_preview, menu);
         menu.findItem(R.id.action_delete).setVisible(mShowDelete);
@@ -83,6 +77,12 @@ public class PhotoPagerActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        viewPager.removeOnPageChangeListener(mOnPageChangeListener);
     }
 
     private void initData() {
