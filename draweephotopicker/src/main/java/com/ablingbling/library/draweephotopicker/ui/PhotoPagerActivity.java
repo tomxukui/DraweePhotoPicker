@@ -17,10 +17,12 @@ import java.util.ArrayList;
 
 import com.ablingbling.library.draweephotopicker.adapter.PhotoPagerAdapter;
 
+import me.relex.photodraweeview.MultiTouchViewPager;
+
 public class PhotoPagerActivity extends AppCompatActivity {
 
     private TextView tv_title;
-    private ViewPager viewPager;
+    private MultiTouchViewPager viewPager;
 
     private PhotoPagerAdapter mPagerAdapter;
 
