@@ -37,16 +37,14 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
     private boolean mPreviewEnable;
     private int mImageSize;
     private int mColumnNumber;
+    private String mPackageName;
 
     private OnItemCheckListener onItemCheckListener;
     private OnPhotoClickListener onPhotoClickListener;
     private View.OnClickListener onCameraClickListener;
 
-    private Context mContext;
-
     public PhotoPickerAdapter(Context context, List<PhotoDirectory> photoDirectories, ArrayList<String> orginalPhotos, int colNum) {
-        mContext = context;
-
+        mPackageName = context.getPackageName();
         mHasCamera = true;
         mPreviewEnable = true;
         mColumnNumber = colNum;
@@ -84,7 +82,7 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
             case TYPE_CAMERA: {
                 vh.iv_selector.setVisibility(View.GONE);
 
-                Uri uri = Uri.parse("res://" + mContext.getPackageName() + "/" + R.mipmap.picker_ic_camera);
+                Uri uri = Uri.parse("res://" + mPackageName + "/" + R.mipmap.picker_ic_camera);
                 vh.iv_photo.setImageURI(uri);
                 vh.iv_photo.setOnClickListener(new View.OnClickListener() {
 
