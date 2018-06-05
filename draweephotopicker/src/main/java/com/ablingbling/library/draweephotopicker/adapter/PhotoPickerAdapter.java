@@ -21,6 +21,7 @@ import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.backends.pipeline.PipelineDraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.facebook.imagepipeline.common.ResizeOptions;
+import com.facebook.imagepipeline.common.RotationOptions;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
@@ -160,6 +161,7 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
     private void setDraweeView(Uri uri, SimpleDraweeView iv) {
         ImageRequest request = ImageRequestBuilder
                 .newBuilderWithSource(uri)
+                .setRotationOptions(RotationOptions.autoRotate())
                 .setResizeOptions(new ResizeOptions(mImageSize, mImageSize))
                 .build();
 
