@@ -1,13 +1,12 @@
 package com.ablingbling.library.draweephotopicker.adapter;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,38 +31,37 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
 
     private final static int TYPE_CAMERA = 0;
     private final static int TYPE_PHOTO = 1;
-    private final static int COL_NUMBER_DEFAULT = 3;
+    private final static int COLUMN_MAX_NUMBER = 4;
 
-    private boolean mHasCamera = true;
-    private boolean mPreviewEnable = true;
+    private boolean mHasCamera;
+    private boolean mPreviewEnable;
     private int mImageSize;
-    private int mColumnNumber = COL_NUMBER_DEFAULT;
+    private int mColumnNumber;
 
-    private OnItemCheckListener onItemCheckListener = null;
-    private OnPhotoClickListener onPhotoClickListener = null;
-    private View.OnClickListener onCameraClickListener = null;
+    private OnItemCheckListener onItemCheckListener;
+    private OnPhotoClickListener onPhotoClickListener;
+    private View.OnClickListener onCameraClickListener;
 
-    public PhotoPickerAdapter(Context context, List<PhotoDirectory> photoDirectories) {
-        mPhotoDirectories = photoDirectories;
-        setColumnNumber(context, mColumnNumber);
-    }
+    private Context mContext;
 
     public PhotoPickerAdapter(Context context, List<PhotoDirectory> photoDirectories, ArrayList<String> orginalPhotos, int colNum) {
-        this(context, photoDirectories);
-        setColumnNumber(context, colNum);
-        mSelectedPhotos = new ArrayList<>();
+        mContext = context;
+
+        mHasCamera = true;
+        mPreviewEnable = true;
+        mColumnNumber = colNum;
+        int widthPixels = Resources.getSystem().getDisplayMetrics().widthPixels;
+        mImageSize = widthPixels / mColumnNumber;
+
+        mPhotoDirectories = photoDirectories;
+        mSelectedPhotos.clear();
         if (orginalPhotos != null) {
             mSelectedPhotos.addAll(orginalPhotos);
         }
     }
 
-    private void setColumnNumber(Context context, int columnNumber) {
-        mColumnNumber = columnNumber;
-        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        DisplayMetrics metrics = new DisplayMetrics();
-        wm.getDefaultDisplay().getMetrics(metrics);
-        int widthPixels = metrics.widthPixels;
-        mImageSize = widthPixels / columnNumber;
+    public PhotoPickerAdapter(Context context, List<PhotoDirectory> photoDirectories) {
+        this(context, photoDirectories, null, COLUMN_MAX_NUMBER);
     }
 
     @Override
@@ -74,8 +72,7 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.picker_item_photo_picker, parent, false);
-        ViewHolder vh = new ViewHolder(view);
-        return vh;
+        return new ViewHolder(view);
     }
 
     @Override
@@ -87,7 +84,7 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
             case TYPE_CAMERA: {
                 vh.iv_selector.setVisibility(View.GONE);
 
-                Uri uri = Uri.parse("res://com.ablingbling.library.draweephotopicker/" + R.mipmap.picker_ic_camera);
+                Uri uri = Uri.parse("res://" + mContext.getPackageName() + "/" + R.mipmap.picker_ic_camera);
                 vh.iv_photo.setImageURI(uri);
                 vh.iv_photo.setOnClickListener(new View.OnClickListener() {
 
@@ -177,10 +174,10 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
         iv.setController(controller);
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    static class ViewHolder extends RecyclerView.ViewHolder {
 
-        private SimpleDraweeView iv_photo;
-        private View iv_selector;
+        public SimpleDraweeView iv_photo;
+        public View iv_selector;
 
         public ViewHolder(View view) {
             super(view);
