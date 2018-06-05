@@ -160,7 +160,6 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
         ImageRequest request = ImageRequestBuilder
                 .newBuilderWithSource(uri)
                 .setResizeOptions(new ResizeOptions(mImageSize, mImageSize))
-                .setLocalThumbnailPreviewsEnabled(true)
                 .build();
 
         DraweeController controller = Fresco
