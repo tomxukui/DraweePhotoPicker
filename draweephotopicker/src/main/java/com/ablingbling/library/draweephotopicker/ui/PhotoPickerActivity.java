@@ -33,7 +33,6 @@ import com.ablingbling.library.draweephotopicker.entity.Photo;
 import com.ablingbling.library.draweephotopicker.entity.PhotoDirectory;
 import com.ablingbling.library.draweephotopicker.event.OnItemCheckListener;
 import com.ablingbling.library.draweephotopicker.event.OnPhotoClickListener;
-import com.ablingbling.library.draweephotopicker.utils.AndroidLifecycleUtils;
 import com.ablingbling.library.draweephotopicker.utils.ImageCaptureManager;
 import com.ablingbling.library.draweephotopicker.utils.MediaStoreHelper;
 import com.facebook.drawee.backends.pipeline.Fresco;
@@ -318,12 +317,6 @@ public class PhotoPickerActivity extends AppCompatActivity {
             }
 
         });
-    }
-
-    private void resumeRequestsIfNotDestroyed() {
-        if (AndroidLifecycleUtils.canLoadImage(this)) {
-            mGlideRequestManager.resumeRequests();
-        }
     }
 
     private void setTitleView(int count) {
