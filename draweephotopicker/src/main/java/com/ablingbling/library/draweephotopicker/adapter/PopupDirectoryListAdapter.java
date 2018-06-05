@@ -1,38 +1,41 @@
 package com.ablingbling.library.draweephotopicker.adapter;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.RequestManager;
-import com.bumptech.glide.request.RequestOptions;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.ablingbling.library.draweephotopicker.R;
 import com.ablingbling.library.draweephotopicker.entity.PhotoDirectory;
-import com.ablingbling.library.draweephotopicker.utils.AndroidLifecycleUtils;
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.interfaces.DraweeController;
+import com.facebook.drawee.view.SimpleDraweeView;
+import com.facebook.imagepipeline.common.ResizeOptions;
+import com.facebook.imagepipeline.request.ImageRequest;
+import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
 /**
  * Created by donglua on 15/6/28.
  */
 public class PopupDirectoryListAdapter extends BaseAdapter {
 
+    private ViewHolder vh;
+
     private List<PhotoDirectory> mDirectories;
-    private RequestManager mGlide;
+    private float mImgWidth;
+    private float mImgHeight;
 
-    public PopupDirectoryListAdapter(RequestManager glide, List<PhotoDirectory> directories) {
-        mGlide = glide;
-        mDirectories = directories;
-
-        if (mDirectories == null) {
-            mDirectories = new ArrayList<>();
-        }
+    public PopupDirectoryListAdapter(Context context, List<PhotoDirectory> directories) {
+        mDirectories = (directories == null ? new ArrayList<PhotoDirectory>() : directories);
+        mImgWidth = context.getResources().getDimension(R.dimen.picker_item_directory_img_width);
+        mImgHeight = context.getResources().getDimension(R.dimen.picker_item_directory_img_height);
     }
 
     @Override
@@ -52,49 +55,52 @@ public class PopupDirectoryListAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder;
         if (convertView == null) {
             convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.picker_item_list_popup_directory, parent, false);
-            holder = new ViewHolder(convertView);
-            convertView.setTag(holder);
+            vh = new ViewHolder(convertView);
+            convertView.setTag(vh);
 
         } else {
-            holder = (ViewHolder) convertView.getTag();
+            vh = (ViewHolder) convertView.getTag();
         }
-        
-        holder.bindData(parent.getContext(), mDirectories.get(position));
+
+        PhotoDirectory item = getItem(position);
+
+        Uri uri = Uri.parse("file://" + item.getCoverPath());
+        setDraweeView(uri, vh.iv_dir_cover);
+        vh.tv_dir_name.setText(item.getName());
+        vh.tv_dir_count.setText(String.format("%d张", item.getPhotos().size()));
+
         return convertView;
+    }
+
+    private void setDraweeView(Uri uri, SimpleDraweeView iv) {
+        ImageRequest request = ImageRequestBuilder
+                .newBuilderWithSource(uri)
+                .setResizeOptions(new ResizeOptions((int) mImgWidth, (int) mImgHeight))
+                .build();
+
+        DraweeController controller = Fresco
+                .newDraweeControllerBuilder()
+                .setOldController(iv.getController())
+                .setImageRequest(request)
+                .build();
+
+        iv.setController(controller);
     }
 
     class ViewHolder {
 
-        ImageView ivCover;
-        TextView tvName;
-        TextView tvCount;
+        SimpleDraweeView iv_dir_cover;
+        TextView tv_dir_name;
+        TextView tv_dir_count;
 
-        public ViewHolder(View rootView) {
-            ivCover = rootView.findViewById(R.id.iv_dir_cover);
-            tvName = rootView.findViewById(R.id.tv_dir_name);
-            tvCount = rootView.findViewById(R.id.tv_dir_count);
+        public ViewHolder(View view) {
+            iv_dir_cover = view.findViewById(R.id.iv_dir_cover);
+            tv_dir_name = view.findViewById(R.id.tv_dir_name);
+            tv_dir_count = view.findViewById(R.id.tv_dir_count);
         }
 
-        public void bindData(Context context, PhotoDirectory directory) {
-            tvName.setText(directory.getName());
-            tvCount.setText(String.format("%d张", directory.getPhotos().size()));
-
-            if (AndroidLifecycleUtils.canLoadImage(context)) {
-                RequestOptions options = new RequestOptions()
-                        .dontAnimate()
-                        .dontTransform()
-                        .override(800, 800)
-                        .error(R.mipmap.picker_ic_broken_img);
-
-                mGlide.setDefaultRequestOptions(options)
-                        .load(directory.getCoverPath())
-                        .thumbnail(0.1f)
-                        .into(ivCover);
-            }
-        }
     }
 
 }

@@ -200,7 +200,7 @@ public class PhotoPickerActivity extends AppCompatActivity {
 
         });
 
-        mDirPopupListAdapter = new PopupDirectoryListAdapter(mGlideRequestManager, mDirectories);
+        mDirPopupListAdapter = new PopupDirectoryListAdapter(this, mDirectories);
 
         mCaptureManager = new ImageCaptureManager(this);
 
