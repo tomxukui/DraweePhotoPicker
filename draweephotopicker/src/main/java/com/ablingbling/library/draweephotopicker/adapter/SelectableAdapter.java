@@ -11,14 +11,13 @@ import com.ablingbling.library.draweephotopicker.event.Selectable;
 
 public abstract class SelectableAdapter<VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> implements Selectable {
 
-    protected List<PhotoDirectory> photoDirectories;
-    protected List<String> selectedPhotos;
-
-    public int currentDirectoryIndex = 0;
+    protected List<PhotoDirectory> mPhotoDirectories;
+    protected List<String> mSelectedPhotos;
+    protected int mCurrentDirectoryIndex = 0;
 
     public SelectableAdapter() {
-        photoDirectories = new ArrayList<>();
-        selectedPhotos = new ArrayList<>();
+        mPhotoDirectories = new ArrayList<>();
+        mSelectedPhotos = new ArrayList<>();
     }
 
     /**
@@ -39,10 +38,10 @@ public abstract class SelectableAdapter<VH extends RecyclerView.ViewHolder> exte
      */
     @Override
     public void toggleSelection(Photo photo) {
-        if (selectedPhotos.contains(photo.getPath())) {
-            selectedPhotos.remove(photo.getPath());
+        if (mSelectedPhotos.contains(photo.getPath())) {
+            mSelectedPhotos.remove(photo.getPath());
         } else {
-            selectedPhotos.add(photo.getPath());
+            mSelectedPhotos.add(photo.getPath());
         }
     }
 
@@ -51,7 +50,7 @@ public abstract class SelectableAdapter<VH extends RecyclerView.ViewHolder> exte
      */
     @Override
     public void clearSelection() {
-        selectedPhotos.clear();
+        mSelectedPhotos.clear();
     }
 
     /**
@@ -61,15 +60,15 @@ public abstract class SelectableAdapter<VH extends RecyclerView.ViewHolder> exte
      */
     @Override
     public int getSelectedItemCount() {
-        return selectedPhotos.size();
+        return mSelectedPhotos.size();
     }
 
     public void setCurrentDirectoryIndex(int currentDirectoryIndex) {
-        this.currentDirectoryIndex = currentDirectoryIndex;
+        mCurrentDirectoryIndex = currentDirectoryIndex;
     }
 
     public List<Photo> getCurrentPhotos() {
-        return photoDirectories.get(currentDirectoryIndex).getPhotos();
+        return mPhotoDirectories.get(mCurrentDirectoryIndex).getPhotos();
     }
 
     public List<String> getCurrentPhotoPaths() {
@@ -81,7 +80,7 @@ public abstract class SelectableAdapter<VH extends RecyclerView.ViewHolder> exte
     }
 
     public List<String> getSelectedPhotos() {
-        return selectedPhotos;
+        return mSelectedPhotos;
     }
 
 }

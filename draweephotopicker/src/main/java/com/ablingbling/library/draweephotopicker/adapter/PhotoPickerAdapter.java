@@ -44,16 +44,16 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
     private View.OnClickListener onCameraClickListener = null;
 
     public PhotoPickerAdapter(Context context, List<PhotoDirectory> photoDirectories) {
-        this.photoDirectories = photoDirectories;
+        mPhotoDirectories = photoDirectories;
         setColumnNumber(context, mColumnNumber);
     }
 
     public PhotoPickerAdapter(Context context, List<PhotoDirectory> photoDirectories, ArrayList<String> orginalPhotos, int colNum) {
         this(context, photoDirectories);
         setColumnNumber(context, colNum);
-        selectedPhotos = new ArrayList<>();
+        mSelectedPhotos = new ArrayList<>();
         if (orginalPhotos != null) {
-            selectedPhotos.addAll(orginalPhotos);
+            mSelectedPhotos.addAll(orginalPhotos);
         }
     }
 
@@ -158,7 +158,7 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
 
     @Override
     public int getItemCount() {
-        int photosCount = (photoDirectories.size() == 0 ? 0 : getCurrentPhotos().size());
+        int photosCount = (mPhotoDirectories.size() == 0 ? 0 : getCurrentPhotos().size());
         return showCamera() ? (photosCount + 1) : photosCount;
     }
 
@@ -205,7 +205,7 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
     public ArrayList<String> getSelectedPhotoPaths() {
         ArrayList<String> selectedPhotoPaths = new ArrayList<>(getSelectedItemCount());
 
-        for (String photo : selectedPhotos) {
+        for (String photo : mSelectedPhotos) {
             selectedPhotoPaths.add(photo);
         }
 
@@ -221,7 +221,7 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
     }
 
     public boolean showCamera() {
-        return (mHasCamera && currentDirectoryIndex == MediaStoreHelper.INDEX_ALL_PHOTOS);
+        return (mHasCamera && mCurrentDirectoryIndex == MediaStoreHelper.INDEX_ALL_PHOTOS);
     }
 
 }
