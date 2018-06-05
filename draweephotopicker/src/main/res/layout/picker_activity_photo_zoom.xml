@@ -4,4 +4,5 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
-    app:failureImage="@mipmap/picker_ic_broken_img" />
+    app:failureImage="@mipmap/picker_ic_empty_light"
+    app:failureImageScaleType="center" />

@@ -12,7 +12,9 @@
         android:id="@+id/iv_dir_cover"
         android:layout_width="@dimen/picker_item_directory_img_width"
         android:layout_height="@dimen/picker_item_directory_img_height"
-        app:failureImage="@mipmap/picker_ic_broken_img"
+        android:background="@android:color/black"
+        app:failureImage="@mipmap/picker_ic_empty_dark"
+        app:failureImageScaleType="center"
         app:roundedCornerRadius="3dp" />
 
     <LinearLayout

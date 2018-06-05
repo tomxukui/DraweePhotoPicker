@@ -10,8 +10,8 @@
         android:layout_height="match_parent"
         android:background="@drawable/picker_bg_photo"
         android:padding="1dp"
-        app:actualImageScaleType="focusCrop"
-        app:failureImage="@mipmap/picker_ic_broken_img" />
+        app:failureImage="@mipmap/picker_ic_empty_light"
+        app:failureImageScaleType="center" />
 
     <ImageView
         android:id="@+id/iv_selector"
