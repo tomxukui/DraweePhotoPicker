@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 PhotoPicker.builder()
                         .setPhotoCount(9)
-                        .setGridColumnCount(4)
+                        .setGridColumnCount(3)
                         .start(MainActivity.this, EXTRA_PICK);
             }
 

@@ -36,11 +36,13 @@ import com.ablingbling.library.draweephotopicker.event.OnPhotoClickListener;
 import com.ablingbling.library.draweephotopicker.utils.AndroidLifecycleUtils;
 import com.ablingbling.library.draweephotopicker.utils.ImageCaptureManager;
 import com.ablingbling.library.draweephotopicker.utils.MediaStoreHelper;
+import com.facebook.drawee.backends.pipeline.Fresco;
 
 public class PhotoPickerActivity extends AppCompatActivity {
 
+    private final static int MAX_COUNT = 4;
+    private final static int COLUMN_MAX_NUMBER = 4;
     private static final int POPUP_MAX_COUNT = 4;//目录弹出框的一次最多显示的目录数目
-    private static final int SCROLL_THRESHOLD = 30;
 
     private TextView tv_title;
     private RecyclerView recyclerView;
@@ -140,8 +142,8 @@ public class PhotoPickerActivity extends AppCompatActivity {
         mShowCamera = getIntent().getBooleanExtra(PhotoPicker.EXTRA_SHOW_CAMERA, true);
         mShowGif = getIntent().getBooleanExtra(PhotoPicker.EXTRA_SHOW_GIF, false);
         mPreviewEnabled = getIntent().getBooleanExtra(PhotoPicker.EXTRA_PREVIEW_ENABLED, true);
-        mMaxCount = getIntent().getIntExtra(PhotoPicker.EXTRA_MAX_COUNT, PhotoPicker.DEFAULT_MAX_COUNT);
-        mColumnNumber = getIntent().getIntExtra(PhotoPicker.EXTRA_GRID_COLUMN, PhotoPicker.DEFAULT_COLUMN_NUMBER);
+        mMaxCount = getIntent().getIntExtra(PhotoPicker.EXTRA_MAX_COUNT, MAX_COUNT);
+        mColumnNumber = getIntent().getIntExtra(PhotoPicker.EXTRA_GRID_COLUMN, COLUMN_MAX_NUMBER);
         mOriginalPhotos = getIntent().getStringArrayListExtra(PhotoPicker.EXTRA_ORIGINAL_PHOTOS);
 
         mGlideRequestManager = Glide.with(this);
@@ -257,21 +259,43 @@ public class PhotoPickerActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                if (Math.abs(dy) > SCROLL_THRESHOLD) {
-                    mGlideRequestManager.pauseRequests();
-                } else {
-                    resumeRequestsIfNotDestroyed();
-                }
-            }
+            int preScrollState;
 
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    resumeRequestsIfNotDestroyed();
+                super.onScrollStateChanged(recyclerView, newState);
+                switch (newState) {
+
+                    case RecyclerView.SCROLL_STATE_IDLE: {//停止滑动
+                        if (Fresco.getImagePipeline().isPaused()) {
+                            Fresco.getImagePipeline().resume();
+                        }
+                    }
+                    break;
+
+                    case RecyclerView.SCROLL_STATE_DRAGGING: {
+                        if (preScrollState == RecyclerView.SCROLL_STATE_SETTLING) {
+                            Fresco.getImagePipeline().pause();//触摸滑动不需要加载
+
+                        } else {
+                            if (Fresco.getImagePipeline().isPaused()) {//触摸滑动需要加载
+                                Fresco.getImagePipeline().resume();
+                            }
+                        }
+                    }
+                    break;
+
+                    case RecyclerView.SCROLL_STATE_SETTLING: {//惯性滑动
+                        Fresco.getImagePipeline().pause();
+                    }
+                    break;
+
+                    default:
+                        break;
+
                 }
+
+                preScrollState = newState;
             }
 
         });

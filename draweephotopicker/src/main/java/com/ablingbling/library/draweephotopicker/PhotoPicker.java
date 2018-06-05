@@ -13,9 +13,6 @@ import java.util.ArrayList;
 
 public class PhotoPicker {
 
-    public final static int DEFAULT_MAX_COUNT = 9;
-    public final static int DEFAULT_COLUMN_NUMBER = 3;
-
     public final static String EXTRA_MAX_COUNT = "EXTRA_MAX_COUNT";
     public final static String EXTRA_SHOW_CAMERA = "EXTRA_SHOW_CAMERA";
     public final static String EXTRA_SHOW_GIF = "EXTRA_SHOW_GIF";

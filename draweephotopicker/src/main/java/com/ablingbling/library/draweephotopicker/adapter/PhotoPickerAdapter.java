@@ -18,10 +18,9 @@ import com.ablingbling.library.draweephotopicker.event.OnItemCheckListener;
 import com.ablingbling.library.draweephotopicker.event.OnPhotoClickListener;
 import com.ablingbling.library.draweephotopicker.utils.MediaStoreHelper;
 import com.facebook.drawee.backends.pipeline.Fresco;
-import com.facebook.drawee.backends.pipeline.PipelineDraweeController;
+import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.facebook.imagepipeline.common.ResizeOptions;
-import com.facebook.imagepipeline.common.RotationOptions;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
@@ -32,7 +31,6 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
 
     private final static int TYPE_CAMERA = 0;
     private final static int TYPE_PHOTO = 1;
-    private final static int COLUMN_MAX_NUMBER = 4;
 
     private boolean mHasCamera;
     private boolean mPreviewEnable;
@@ -40,9 +38,9 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
     private int mColumnNumber;
     private String mPackageName;
 
-    private OnItemCheckListener onItemCheckListener;
-    private OnPhotoClickListener onPhotoClickListener;
-    private View.OnClickListener onCameraClickListener;
+    private OnItemCheckListener mOnItemCheckListener;
+    private OnPhotoClickListener mOnPhotoClickListener;
+    private View.OnClickListener mOnCameraClickListener;
 
     public PhotoPickerAdapter(Context context, List<PhotoDirectory> photoDirectories, ArrayList<String> orginalPhotos, int colNum) {
         mPackageName = context.getPackageName();
@@ -59,8 +57,8 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
         }
     }
 
-    public PhotoPickerAdapter(Context context, List<PhotoDirectory> photoDirectories) {
-        this(context, photoDirectories, null, COLUMN_MAX_NUMBER);
+    public PhotoPickerAdapter(Context context, List<PhotoDirectory> photoDirectories, int colNum) {
+        this(context, photoDirectories, null, colNum);
     }
 
     @Override
@@ -89,8 +87,8 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
 
                     @Override
                     public void onClick(View view) {
-                        if (onCameraClickListener != null) {
-                            onCameraClickListener.onClick(view);
+                        if (mOnCameraClickListener != null) {
+                            mOnCameraClickListener.onClick(view);
                         }
                     }
 
@@ -109,11 +107,11 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
 
                     @Override
                     public void onClick(View view) {
-                        if (onPhotoClickListener != null) {
+                        if (mOnPhotoClickListener != null) {
                             int pos = vh.getAdapterPosition();
 
                             if (mPreviewEnable) {
-                                onPhotoClickListener.onClick(view, pos, showCamera());
+                                mOnPhotoClickListener.onClick(view, pos, showCamera());
 
                             } else {
                                 vh.iv_selector.performClick();
@@ -131,8 +129,8 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
                         int pos = vh.getAdapterPosition();
                         boolean isEnable = true;
 
-                        if (onItemCheckListener != null) {
-                            isEnable = onItemCheckListener.onItemCheck(pos, photo,
+                        if (mOnItemCheckListener != null) {
+                            isEnable = mOnItemCheckListener.onItemCheck(pos, photo,
                                     getSelectedPhotos().size() + (isSelected(photo) ? -1 : 1));
                         }
 
@@ -161,11 +159,11 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
     private void setDraweeView(Uri uri, SimpleDraweeView iv) {
         ImageRequest request = ImageRequestBuilder
                 .newBuilderWithSource(uri)
-                .setRotationOptions(RotationOptions.autoRotate())
                 .setResizeOptions(new ResizeOptions(mImageSize, mImageSize))
+                .setLocalThumbnailPreviewsEnabled(true)
                 .build();
 
-        PipelineDraweeController controller = (PipelineDraweeController) Fresco
+        DraweeController controller = Fresco
                 .newDraweeControllerBuilder()
                 .setOldController(iv.getController())
                 .setImageRequest(request)
@@ -188,15 +186,15 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
     }
 
     public void setOnItemCheckListener(OnItemCheckListener onItemCheckListener) {
-        this.onItemCheckListener = onItemCheckListener;
+        this.mOnItemCheckListener = onItemCheckListener;
     }
 
     public void setOnPhotoClickListener(OnPhotoClickListener onPhotoClickListener) {
-        this.onPhotoClickListener = onPhotoClickListener;
+        this.mOnPhotoClickListener = onPhotoClickListener;
     }
 
     public void setOnCameraClickListener(View.OnClickListener onCameraClickListener) {
-        this.onCameraClickListener = onCameraClickListener;
+        this.mOnCameraClickListener = onCameraClickListener;
     }
 
     public ArrayList<String> getSelectedPhotoPaths() {
