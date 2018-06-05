@@ -17,6 +17,8 @@ import com.ablingbling.library.draweephotopicker.event.OnItemCheckListener;
 import com.ablingbling.library.draweephotopicker.event.OnPhotoClickListener;
 import com.ablingbling.library.draweephotopicker.utils.MediaStoreHelper;
 import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.drawable.ScalingUtils;
+import com.facebook.drawee.generic.GenericDraweeHierarchy;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.facebook.imagepipeline.common.ResizeOptions;
@@ -82,6 +84,9 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
 
                 Uri uri = Uri.parse("res://" + mPackageName + "/" + R.mipmap.picker_ic_camera);
                 vh.iv_photo.setImageURI(uri);
+                GenericDraweeHierarchy hierarchy = vh.iv_photo.getHierarchy();
+                hierarchy.setActualImageScaleType(ScalingUtils.ScaleType.CENTER);
+                vh.iv_photo.setHierarchy(hierarchy);
                 vh.iv_photo.setOnClickListener(new View.OnClickListener() {
 
                     @Override
@@ -102,6 +107,9 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
                 Uri uri = Uri.parse("file://" + photo.getPath());
                 setDraweeView(uri, vh.iv_photo);
                 vh.iv_photo.setSelected(isChecked);
+                GenericDraweeHierarchy hierarchy = vh.iv_photo.getHierarchy();
+                hierarchy.setActualImageScaleType(ScalingUtils.ScaleType.FOCUS_CROP);
+                vh.iv_photo.setHierarchy(hierarchy);
                 vh.iv_photo.setOnClickListener(new View.OnClickListener() {
 
                     @Override
