@@ -5,10 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.ListPopupWindow;
-import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.Menu;
@@ -232,8 +231,7 @@ public class PhotoPickerActivity extends AppCompatActivity {
         });
 
         recyclerView = findViewById(R.id.recyclerView);
-        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(mColumnNumber, OrientationHelper.VERTICAL);
-        layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
+        GridLayoutManager layoutManager = new GridLayoutManager(this, mColumnNumber);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(mPhotoPickerAdapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
