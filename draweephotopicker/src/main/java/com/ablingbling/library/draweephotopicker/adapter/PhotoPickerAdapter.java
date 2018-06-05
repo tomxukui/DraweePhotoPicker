@@ -51,7 +51,7 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
         int widthPixels = Resources.getSystem().getDisplayMetrics().widthPixels;
         mImageSize = widthPixels / mColumnNumber;
 
-        mPhotoDirectories = photoDirectories;
+        mPhotoDirectories = (photoDirectories == null ? new ArrayList<PhotoDirectory>() : photoDirectories);
         mSelectedPhotos.clear();
         if (orginalPhotos != null) {
             mSelectedPhotos.addAll(orginalPhotos);
