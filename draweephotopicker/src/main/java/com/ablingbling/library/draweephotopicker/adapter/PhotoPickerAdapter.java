@@ -1,7 +1,6 @@
 package com.ablingbling.library.draweephotopicker.adapter;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -47,7 +46,7 @@ public class PhotoPickerAdapter extends SelectableAdapter<PhotoPickerAdapter.Vie
         mHasCamera = true;
         mPreviewEnable = true;
         mColumnNumber = colNum;
-        int widthPixels = Resources.getSystem().getDisplayMetrics().widthPixels;
+        int widthPixels = context.getResources().getDisplayMetrics().widthPixels;
         mImageSize = widthPixels / mColumnNumber;
 
         mPhotoDirectories = (photoDirectories == null ? new ArrayList<PhotoDirectory>() : photoDirectories);

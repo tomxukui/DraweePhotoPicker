@@ -20,8 +20,6 @@ import android.widget.Toast;
 
 import com.ablingbling.library.draweephotopicker.PhotoPicker;
 import com.ablingbling.library.draweephotopicker.R;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.RequestManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,12 +44,11 @@ public class PhotoPickerActivity extends AppCompatActivity {
     private TextView tv_title;
     private RecyclerView recyclerView;
     private TextView tv_dir;
+    private ListPopupWindow mListPopupWindow;
 
+    private ImageCaptureManager mCaptureManager;
     private PhotoPickerAdapter mPhotoPickerAdapter;
     private PopupDirectoryListAdapter mDirPopupListAdapter;
-    private ListPopupWindow mListPopupWindow;
-    private RequestManager mGlideRequestManager;
-    private ImageCaptureManager mCaptureManager;
 
     private List<PhotoDirectory> mDirectories;
     private ArrayList<String> mOriginalPhotos;
@@ -144,12 +141,12 @@ public class PhotoPickerActivity extends AppCompatActivity {
         mMaxCount = getIntent().getIntExtra(PhotoPicker.EXTRA_MAX_COUNT, MAX_COUNT);
         mColumnNumber = getIntent().getIntExtra(PhotoPicker.EXTRA_GRID_COLUMN, COLUMN_MAX_NUMBER);
         mOriginalPhotos = getIntent().getStringArrayListExtra(PhotoPicker.EXTRA_ORIGINAL_PHOTOS);
-
-        mGlideRequestManager = Glide.with(this);
-        mDirectories = new ArrayList<>();
         if (mOriginalPhotos == null) {
             mOriginalPhotos = new ArrayList<>();
         }
+        mDirectories = new ArrayList<>();
+
+        mCaptureManager = new ImageCaptureManager(this);
 
         mPhotoPickerAdapter = new PhotoPickerAdapter(this, mDirectories, mOriginalPhotos, mColumnNumber);
         mPhotoPickerAdapter.setShowCamera(mShowCamera);
@@ -201,23 +198,6 @@ public class PhotoPickerActivity extends AppCompatActivity {
         });
 
         mDirPopupListAdapter = new PopupDirectoryListAdapter(this, mDirectories);
-
-        mCaptureManager = new ImageCaptureManager(this);
-
-        Bundle mediaStoreArgs = new Bundle();
-        mediaStoreArgs.putBoolean(PhotoPicker.EXTRA_SHOW_GIF, mShowGif);
-        MediaStoreHelper.getPhotoDirs(this, mediaStoreArgs, new MediaStoreHelper.PhotosResultCallback() {
-
-            @Override
-            public void onResultCallback(List<PhotoDirectory> dirs) {
-                mDirectories.clear();
-                mDirectories.addAll(dirs);
-                mPhotoPickerAdapter.notifyDataSetChanged();
-                mDirPopupListAdapter.notifyDataSetChanged();
-                adjustHeight();
-            }
-
-        });
     }
 
     private void initActionBar() {
@@ -239,12 +219,13 @@ public class PhotoPickerActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                if (mListPopupWindow.isShowing()) {
-                    mListPopupWindow.dismiss();
+                if (mListPopupWindow != null) {
+                    if (mListPopupWindow.isShowing()) {
+                        mListPopupWindow.dismiss();
 
-                } else if (!isFinishing()) {
-                    adjustHeight();
-                    mListPopupWindow.show();
+                    } else {
+                        mListPopupWindow.show();
+                    }
                 }
             }
 
@@ -310,10 +291,27 @@ public class PhotoPickerActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 mListPopupWindow.dismiss();
+
                 PhotoDirectory directory = mDirectories.get(position);
                 tv_dir.setText(directory.getName());
                 mPhotoPickerAdapter.setCurrentDirectoryIndex(position);
                 mPhotoPickerAdapter.notifyDataSetChanged();
+            }
+
+        });
+
+        Bundle mediaStoreBundle = new Bundle();
+        mediaStoreBundle.putBoolean(PhotoPicker.EXTRA_SHOW_GIF, mShowGif);
+        MediaStoreHelper.getPhotoDirs(this, mediaStoreBundle, new MediaStoreHelper.PhotosResultCallback() {
+
+            @Override
+            public void onResultCallback(List<PhotoDirectory> dirs) {
+                mDirectories.clear();
+                mDirectories.addAll(dirs);
+                mPhotoPickerAdapter.notifyDataSetChanged();
+                mDirPopupListAdapter.notifyDataSetChanged();
+
+                adjustHeight();
             }
 
         });
@@ -324,7 +322,7 @@ public class PhotoPickerActivity extends AppCompatActivity {
             tv_title.setText(String.format("选择图片(%d/%d)", count, mMaxCount));
 
         } else {
-            tv_title.setText("选择图片");
+            tv_title.setText("选择一张图片");
         }
     }
 
@@ -340,15 +338,10 @@ public class PhotoPickerActivity extends AppCompatActivity {
     }
 
     private void adjustHeight() {
-        if (mDirPopupListAdapter == null) {
-            return;
-        }
-
         int count = Math.min(mDirPopupListAdapter.getCount(), POPUP_MAX_COUNT);
+        int height = (int) getResources().getDimension(R.dimen.picker_item_directory_height);
 
-        if (mListPopupWindow != null) {
-            mListPopupWindow.setHeight(count * getResources().getDimensionPixelOffset(R.dimen.picker_item_directory_height));
-        }
+        mListPopupWindow.setHeight(count * height);
     }
 
 }
